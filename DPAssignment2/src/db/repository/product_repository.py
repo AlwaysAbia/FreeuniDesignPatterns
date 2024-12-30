@@ -1,7 +1,7 @@
 import sqlite3
 from decimal import Decimal
 from typing import List
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.models.product import Product
@@ -11,18 +11,31 @@ class ProductRepository:
     def __init__(self, database: Database) -> None:
         self.db = database
 
-    def create_product(self, product: Product) -> None:
+    def create_product(self, name: str, unit_id: UUID,
+                       barcode: str, price: Decimal) -> Product:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
+
+        # Generate UUID here instead of relying on caller
+        product_id = uuid4()
+
         try:
             self.db.cursor.execute(
                 "INSERT INTO Product (id, unit_id, name, barcode, price) "
                 "VALUES (?, ?, ?, ?, ?)",
-                (str(product.id), str(product.unit_id),
-                 product.name, product.barcode, str(product.price))
+                (str(product_id), str(unit_id), name, barcode, str(price))
             )
             if self.db.connection is not None:
                 self.db.connection.commit()
+
+            # Create and return the Product
+            return Product(
+                id=product_id,
+                unit_id=unit_id,
+                name=name,
+                barcode=barcode,
+                price=price
+            )
         except sqlite3.Error as e:
             if self.db.connection is not None:
                 self.db.connection.rollback()

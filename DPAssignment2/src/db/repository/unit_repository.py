@@ -1,6 +1,6 @@
 import sqlite3
 from typing import List
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.models.unit import Unit
@@ -10,16 +10,24 @@ class UnitRepository:
     def __init__(self, database: Database) -> None:
         self.db = database
 
-    def create_unit(self, unit: Unit) -> None:
+    def create_unit(self, unit_name: str) -> Unit:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
+
+        unit_id = uuid4()
+
         try:
             self.db.cursor.execute(
                 "INSERT INTO Unit (id, name) VALUES (?, ?)",
-                (str(unit.id), unit.name)
+                (str(unit_id), unit_name)
             )
             if self.db.connection is not None:
                 self.db.connection.commit()
+
+            return Unit(
+                id=unit_id,
+                name=unit_name
+            )
         except sqlite3.Error as e:
             if self.db.connection is not None:
                 self.db.connection.rollback()

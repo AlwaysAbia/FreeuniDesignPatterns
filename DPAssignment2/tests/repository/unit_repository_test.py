@@ -8,7 +8,6 @@ from DPAssignment2.src.db.repository.unit_repository import UnitRepository
 from DPAssignment2.src.models.unit import Unit
 
 
-#Covers everything except some error handling lines
 class TestUnitRepository:
     @pytest.fixture
     def init_repository(self) -> Generator[Database, None, None]:
@@ -19,52 +18,46 @@ class TestUnitRepository:
         db.disconnect()  # Clean up after test
 
     @pytest.fixture
-    def unit_kg(self) -> Unit:
-        return Unit(name="kg")
-
-    @pytest.fixture
-    def unit_s(self) -> Unit:
-        return Unit(name="s")
-
-    @pytest.fixture
-    def unit_m(self) -> Unit:
-        return Unit(name="m")
-
-    @pytest.fixture
-    def nonexistent_unit(self) -> Unit:
-        return Unit(name="nonexistent")
+    def unit_repo(self, init_repository: Database) -> UnitRepository:
+        return UnitRepository(init_repository)
 
     def test_unit_repository_add_read(
-            self, init_repository: Database,
-            unit_m: Unit, unit_s: Unit, unit_kg: Unit) -> None:
-        ur: UnitRepository = UnitRepository(init_repository)
+            self, unit_repo: UnitRepository
+    ) -> None:
+        # Create units using the new method
+        unit_m = unit_repo.create_unit("m")
+        unit_s = unit_repo.create_unit("s")
+        unit_kg = unit_repo.create_unit("kg")
 
-        ur.create_unit(unit_m)
-        ur.create_unit(unit_s)
-        ur.create_unit(unit_kg)
+        # Read and verify each unit
+        assert unit_repo.read_unit(unit_m.id) == unit_m
+        assert unit_repo.read_unit(unit_s.id) == unit_s
+        assert unit_repo.read_unit(unit_kg.id) == unit_kg
 
-        assert(ur.read_unit(unit_m.id) == unit_m)
-        assert(ur.read_unit(unit_s.id) == unit_s)
-        assert(ur.read_unit(unit_kg.id) == unit_kg)
-
-        assert(ur.list_units() == [unit_m, unit_s, unit_kg])
+        # Verify list of units
+        assert unit_repo.list_units() == [unit_m, unit_s, unit_kg]
 
     def test_read_nonexistent_unit(
-            self, init_repository: Database, nonexistent_unit: Unit) -> None:
-        ur: UnitRepository = UnitRepository(init_repository)
+            self, unit_repo: UnitRepository
+    ) -> None:
+        # Use a UUID that definitely won't exist
+        from uuid import uuid4
+        nonexistent_id = uuid4()
 
-        with pytest.raises(ValueError):
-            ur.read_unit(nonexistent_unit.id)
+        with pytest.raises(ValueError, match=f"Unit with id {nonexistent_id} not found"):
+            unit_repo.read_unit(nonexistent_id)
 
-    def test_create_duplicate_unit_name(self, init_repository: Database) -> None:
-        ur: UnitRepository = UnitRepository(init_repository)
-        unit1 = Unit(name="kg")
-        unit2 = Unit(name="kg")  # Same name
+    def test_create_duplicate_unit_name(
+            self, unit_repo: UnitRepository
+    ) -> None:
+        # First creation should work fine
+        unit_repo.create_unit("kg")
 
-        ur.create_unit(unit1)
+        # Attempting to create another unit with the same name should raise an IntegrityError
         with pytest.raises(sqlite3.IntegrityError):
-            ur.create_unit(unit2)
+            unit_repo.create_unit("kg")
 
-    def test_list_empty_repository(self, init_repository: Database) -> None:
-        ur: UnitRepository = UnitRepository(init_repository)
-        assert ur.list_units() == []
+    def test_list_empty_repository(
+            self, unit_repo: UnitRepository
+    ) -> None:
+        assert unit_repo.list_units() == []

@@ -23,15 +23,16 @@ class ReceiptProduct:
                 and self.quantity == other.quantity
                 and self.price == other.price)
 
-class Receipts:
+class Receipt:
     def __init__(self,  id: Optional[UUID] = None) -> None:
         self.id : UUID = id or uuid4()
         self.status : ReceiptStatus = ReceiptStatus.OPEN
         self.products : List[ReceiptProduct] = []
+        self.total: Decimal = Decimal("0.00")
 
     #For Testing
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Receipts):
+        if not isinstance(other, Receipt):
             return False
         return (self.id == other.id
                 and self.status == other.status
