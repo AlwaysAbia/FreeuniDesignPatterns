@@ -11,12 +11,10 @@ class ProductRepository:
     def __init__(self, database: Database) -> None:
         self.db = database
 
-    def create_product(self, name: str, unit_id: UUID,
-                       barcode: str, price: Decimal) -> Product:
+    def create_product(self, name: str, unit_id: UUID, barcode: str, price: Decimal) -> Product:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
 
-        # Generate UUID here instead of relying on caller
         product_id = uuid4()
 
         try:
@@ -25,31 +23,18 @@ class ProductRepository:
                 "VALUES (?, ?, ?, ?, ?)",
                 (str(product_id), str(unit_id), name, barcode, str(price))
             )
-            if self.db.connection is not None:
-                self.db.connection.commit()
-
-            # Create and return the Product
-            return Product(
-                id=product_id,
-                unit_id=unit_id,
-                name=name,
-                barcode=barcode,
-                price=price
-            )
+            self.db.commit()  # Use helper method
+            return Product(id=product_id, unit_id=unit_id, name=name, barcode=barcode, price=price)
         except sqlite3.Error as e:
-            if self.db.connection is not None:
-                self.db.connection.rollback()
-            raise e  # Re-raise the error so we can see what went wrong
+            self.db.rollback()  # Use helper method
+            raise e
 
     def read_product(self, product_id: UUID) -> Product:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
-        self.db.cursor.execute(
-            "SELECT * FROM Product WHERE id = ?",
-            (str(product_id),)
-        )
 
-        row = self.db.cursor.fetchone()  # Gets one row
+        self.db.cursor.execute("SELECT * FROM Product WHERE id = ?", (str(product_id),))
+        row = self.db.cursor.fetchone()
         if row is None:
             raise ValueError(f"Product with id {product_id} not found")
 
@@ -64,10 +49,9 @@ class ProductRepository:
     def list_products(self) -> List[Product]:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
-        self.db.cursor.execute(
-            "SELECT * FROM Product"
-        )
-        rows = self.db.cursor.fetchall()  # Gets all rows
+
+        self.db.cursor.execute("SELECT * FROM Product")
+        rows = self.db.cursor.fetchall()
         return [
             Product(
                 id=UUID(row[0]),
@@ -83,17 +67,15 @@ class ProductRepository:
             raise RuntimeError("Database not connected")
         if product is None:
             raise ValueError("Product cannot be None")
+
         try:
             self.db.cursor.execute(
                 "UPDATE Product SET price = ? WHERE id = ?",
                 (str(price), str(product.id))
             )
-            if self.db.connection is not None:
-                rows_affected = self.db.cursor.rowcount
-                if rows_affected == 0:
-                    raise ValueError(f"Product with id {product.id} not found")
-                self.db.connection.commit()
+            if self.db.cursor.rowcount == 0:
+                raise ValueError(f"Product with id {product.id} not found")
+            self.db.commit()  # Use helper method
         except sqlite3.Error as e:
-            if self.db.connection is not None:
-                self.db.connection.rollback()
+            self.db.rollback()  # Use helper method
             raise e

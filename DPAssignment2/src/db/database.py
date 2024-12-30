@@ -18,6 +18,14 @@ class Database:
         if self.connection is not None:
             self.connection.close()
 
+    def commit(self) -> None:
+        if self.connection is not None:
+            self.connection.commit()
+
+    def rollback(self) -> None:
+        if self.connection is not None:
+            self.connection.rollback()
+
     def create_tables(self) -> None:
         if self.cursor is None:
             raise RuntimeError("Database not connected. Call connect() first.")

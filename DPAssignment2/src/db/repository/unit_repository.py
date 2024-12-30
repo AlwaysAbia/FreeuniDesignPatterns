@@ -21,16 +21,13 @@ class UnitRepository:
                 "INSERT INTO Unit (id, name) VALUES (?, ?)",
                 (str(unit_id), unit_name)
             )
-            if self.db.connection is not None:
-                self.db.connection.commit()
-
+            self.db.commit()
             return Unit(
                 id=unit_id,
                 name=unit_name
             )
         except sqlite3.Error as e:
-            if self.db.connection is not None:
-                self.db.connection.rollback()
+            self.db.rollback()
             raise e  # Re-raise the error so we can see what went wrong
 
     def read_unit(self, unit_id: UUID) -> Unit:
