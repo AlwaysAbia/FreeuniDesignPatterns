@@ -16,3 +16,12 @@ class Product:
         self.unit_id : UUID = unit_id
         self.barcode : str = barcode
         self.price : Decimal = price
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Product):
+            return False
+        return (self.id == other.id
+                and self.name == other.name
+                and self.unit_id == other.unit_id
+                and self.barcode == other.barcode
+                and self.price == other.price)

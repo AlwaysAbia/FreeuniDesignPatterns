@@ -15,21 +15,22 @@ class UnitRepository:
             raise RuntimeError("Database not connected")
         try:
             self.db.cursor.execute(
-            "INSERT INTO Unit (id, name) VALUES (?, ?)",
-            (str(unit.id), unit.name)
+                "INSERT INTO Unit (id, name) VALUES (?, ?)",
+                (str(unit.id), unit.name)
             )
             if self.db.connection is not None:
                 self.db.connection.commit()
-        except sqlite3.Error:
+        except sqlite3.Error as e:
             if self.db.connection is not None:
                 self.db.connection.rollback()
+            raise e  # Re-raise the error so we can see what went wrong
 
     def read_unit(self, unit: Unit) -> Unit:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
         self.db.cursor.execute(
             "SELECT * FROM Unit WHERE id = ?",
-            (str(unit.id))
+            (str(unit.id),)
         )
 
         row = self.db.cursor.fetchone()  # Gets one row

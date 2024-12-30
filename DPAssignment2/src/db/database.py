@@ -64,3 +64,6 @@ class Database:
                 FOREIGN KEY (product_id) REFERENCES Product (id)
             )
         ''')
+
+        if self.connection is not None:
+            self.connection.commit()
