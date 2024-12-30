@@ -8,7 +8,6 @@ import pytest
 from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.db.repository.product_repository import ProductRepository
 from DPAssignment2.src.db.repository.unit_repository import UnitRepository
-from DPAssignment2.src.models.product import Product
 from DPAssignment2.src.models.unit import Unit
 
 
@@ -101,7 +100,6 @@ class TestProductRepository:
             price=Decimal("3.99")
         )
 
-        # Attempting to create another product with the same barcode should raise an IntegrityError
         with pytest.raises(sqlite3.IntegrityError):
             product_repo.create_product(
                 name="orange",

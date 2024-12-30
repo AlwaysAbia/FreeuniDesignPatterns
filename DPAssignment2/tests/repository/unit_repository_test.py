@@ -5,7 +5,6 @@ import pytest
 
 from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.db.repository.unit_repository import UnitRepository
-from DPAssignment2.src.models.unit import Unit
 
 
 class TestUnitRepository:
@@ -44,7 +43,8 @@ class TestUnitRepository:
         from uuid import uuid4
         nonexistent_id = uuid4()
 
-        with pytest.raises(ValueError, match=f"Unit with id {nonexistent_id} not found"):
+        with pytest.raises(ValueError,
+                           match=f"Unit with id {nonexistent_id} not found"):
             unit_repo.read_unit(nonexistent_id)
 
     def test_create_duplicate_unit_name(
@@ -53,7 +53,6 @@ class TestUnitRepository:
         # First creation should work fine
         unit_repo.create_unit("kg")
 
-        # Attempting to create another unit with the same name should raise an IntegrityError
         with pytest.raises(sqlite3.IntegrityError):
             unit_repo.create_unit("kg")
 
