@@ -10,7 +10,7 @@ class Product:
                 unit_id: UUID,
                 barcode: str,
                 price: Decimal,
-                id: Optional[UUID] = None):
+                id: Optional[UUID] = None) -> None:
         self.id : UUID = id or uuid4()
         self.name : str = name
         self.unit_id : UUID = unit_id

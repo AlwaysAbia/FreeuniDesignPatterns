@@ -7,7 +7,7 @@ from DPAssignment2.src.models.unit import Unit
 
 
 class UnitRepository:
-    def __init__(self, database: Database):
+    def __init__(self, database: Database) -> None:
         self.db = database
 
     def create_unit(self, unit: Unit) -> None:

@@ -10,7 +10,7 @@ class ReceiptStatus(Enum):
     CLOSED = 'closed'
 
 class ReceiptProduct:
-    def __init__(self, product_id: UUID, quantity: int, price: Decimal):
+    def __init__(self, product_id: UUID, quantity: int, price: Decimal) -> None:
         self.product_id : UUID = product_id
         self.quantity : int = quantity
         self.price : Decimal = price
@@ -24,7 +24,7 @@ class ReceiptProduct:
                 and self.price == other.price)
 
 class Receipts:
-    def __init__(self,  id: Optional[UUID] = None):
+    def __init__(self,  id: Optional[UUID] = None) -> None:
         self.id : UUID = id or uuid4()
         self.status : ReceiptStatus = ReceiptStatus.OPEN
         self.products : List[ReceiptProduct] = []

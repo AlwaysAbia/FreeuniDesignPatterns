@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class Database:
-    def __init__(self, db_name: str = "database.db"):
+    def __init__(self, db_name: str = "database.db") -> None:
         self.db_name : str = db_name
         self.connection : Optional[sqlite3.Connection] = None
         self.cursor : Optional[sqlite3.Cursor] = None
