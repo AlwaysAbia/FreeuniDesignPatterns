@@ -22,6 +22,8 @@ class Database:
         if self.cursor is None:
             raise RuntimeError("Database not connected. Call connect() first.")
 
+        self.cursor.execute("PRAGMA foreign_keys = ON")
+
         # Units table
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Unit (
@@ -37,7 +39,7 @@ class Database:
                 unit_id TEXT NOT NULL,
                 name TEXT NOT NULL,
                 barcode TEXT UNIQUE NOT NULL,
-                price INTEGER NOT NULL,
+                price TEXT NOT NULL,
                 FOREIGN KEY (unit_id) REFERENCES Unit (id)
             )
         ''')
@@ -47,7 +49,7 @@ class Database:
             CREATE TABLE IF NOT EXISTS Receipt (
                 id TEXT PRIMARY KEY,
                 status TEXT NOT NULL,
-                total INTEGER NOT NULL
+                total TEXT NOT NULL
             )
         ''')
 
@@ -57,8 +59,8 @@ class Database:
                 receipt_id TEXT NOT NULL,
                 product_id TEXT NOT NULL,
                 quantity INTEGER NOT NULL,
-                price_when_sold INTEGER NOT NULL,
-                total INTEGER NOT NULL,
+                price_when_sold TEXT NOT NULL,
+                total TEXT NOT NULL,
                 PRIMARY KEY (receipt_id, product_id),
                 FOREIGN KEY (receipt_id) REFERENCES Receipt (id),
                 FOREIGN KEY (product_id) REFERENCES Product (id)

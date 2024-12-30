@@ -29,9 +29,9 @@ class TestUnitRepository:
         ur.create_unit(test_unit2)
         ur.create_unit(test_unit3)
 
-        assert(ur.read_unit(test_unit1) == test_unit1)
-        assert(ur.read_unit(test_unit2) == test_unit2)
-        assert(ur.read_unit(test_unit3) == test_unit3)
+        assert(ur.read_unit(test_unit1.id) == test_unit1)
+        assert(ur.read_unit(test_unit2.id) == test_unit2)
+        assert(ur.read_unit(test_unit3.id) == test_unit3)
 
         assert(ur.list_units() == [test_unit1, test_unit2, test_unit3])
 
@@ -40,7 +40,7 @@ class TestUnitRepository:
         nonexistent_unit = Unit(name="nonexistent")
 
         with pytest.raises(ValueError):
-            ur.read_unit(nonexistent_unit)
+            ur.read_unit(nonexistent_unit.id)
 
     def test_create_duplicate_unit_name(self, init_repository: Database) -> None:
         ur: UnitRepository = UnitRepository(init_repository)

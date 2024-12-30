@@ -25,17 +25,17 @@ class UnitRepository:
                 self.db.connection.rollback()
             raise e  # Re-raise the error so we can see what went wrong
 
-    def read_unit(self, unit: Unit) -> Unit:
+    def read_unit(self, unit_id: UUID) -> Unit:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
         self.db.cursor.execute(
             "SELECT * FROM Unit WHERE id = ?",
-            (str(unit.id),)
+            (str(unit_id),)
         )
 
         row = self.db.cursor.fetchone()  # Gets one row
         if row is None:
-            raise ValueError(f"Unit with id {unit.id} not found")
+            raise ValueError(f"Unit with id {unit_id} not found")
 
         # row[0] is id, row[1] is name
         return Unit(
