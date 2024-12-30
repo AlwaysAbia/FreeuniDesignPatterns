@@ -18,26 +18,40 @@ class TestUnitRepository:
         yield db
         db.disconnect()  # Clean up after test
 
-    def test_unit_repository_add_read(self, init_repository: Database) -> None:
+    @pytest.fixture
+    def unit_kg(self) -> Unit:
+        return Unit(name="kg")
+
+    @pytest.fixture
+    def unit_s(self) -> Unit:
+        return Unit(name="s")
+
+    @pytest.fixture
+    def unit_m(self) -> Unit:
+        return Unit(name="m")
+
+    @pytest.fixture
+    def nonexistent_unit(self) -> Unit:
+        return Unit(name="nonexistent")
+
+    def test_unit_repository_add_read(
+            self, init_repository: Database,
+            unit_m: Unit, unit_s: Unit, unit_kg: Unit) -> None:
         ur: UnitRepository = UnitRepository(init_repository)
 
-        test_unit1 : Unit = Unit(name = "kg")
-        test_unit2 : Unit = Unit(name = "s")
-        test_unit3 : Unit = Unit(name = "m")
+        ur.create_unit(unit_m)
+        ur.create_unit(unit_s)
+        ur.create_unit(unit_kg)
 
-        ur.create_unit(test_unit1)
-        ur.create_unit(test_unit2)
-        ur.create_unit(test_unit3)
+        assert(ur.read_unit(unit_m.id) == unit_m)
+        assert(ur.read_unit(unit_s.id) == unit_s)
+        assert(ur.read_unit(unit_kg.id) == unit_kg)
 
-        assert(ur.read_unit(test_unit1.id) == test_unit1)
-        assert(ur.read_unit(test_unit2.id) == test_unit2)
-        assert(ur.read_unit(test_unit3.id) == test_unit3)
+        assert(ur.list_units() == [unit_m, unit_s, unit_kg])
 
-        assert(ur.list_units() == [test_unit1, test_unit2, test_unit3])
-
-    def test_read_nonexistent_unit(self, init_repository: Database) -> None:
+    def test_read_nonexistent_unit(
+            self, init_repository: Database, nonexistent_unit: Unit) -> None:
         ur: UnitRepository = UnitRepository(init_repository)
-        nonexistent_unit = Unit(name="nonexistent")
 
         with pytest.raises(ValueError):
             ur.read_unit(nonexistent_unit.id)
