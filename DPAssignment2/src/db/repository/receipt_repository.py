@@ -11,7 +11,7 @@ class ReceiptRepository:
     def __init__(self, database: Database) -> None:
         self.db = database
 
-    def create_receipt(self) -> Receipt:
+    def open_receipt(self) -> Receipt:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
         try:
@@ -29,12 +29,29 @@ class ReceiptRepository:
             raise e  # Re-raise the error so we can see what went wrong
 
     def get_receipt_status(self, receipt_id: UUID) -> ReceiptStatus:
+        if self.db.cursor is None:
+            raise RuntimeError("Database not connected")
         self.db.cursor.execute("SELECT status FROM Receipt WHERE id = ?",
                                (str(receipt_id),))
         row = self.db.cursor.fetchone()
         if not row:
             raise ValueError(f"Receipt with ID {receipt_id} not found.")
         return ReceiptStatus(row[0])
+
+    def close_receipt(self, receipt_id: UUID) -> None:
+        if self.db.cursor is None:
+            raise RuntimeError("Database not connected")
+
+        try:
+            # Update the status to CLOSED
+            self.db.cursor.execute(
+                "UPDATE Receipt SET status = ? WHERE id = ?",
+                (ReceiptStatus.CLOSED, str(receipt_id))
+            )
+            self.db.commit()  # Use the commit helper method
+        except sqlite3.Error as e:
+            self.db.rollback()  # Use the rollback helper method
+            raise e  # Re-raise the exception for debugging/logging purposes
 
     def add_product(self, receipt_id: UUID, product_id: UUID, quantity: int) -> None:
         if self.db.cursor is None:
