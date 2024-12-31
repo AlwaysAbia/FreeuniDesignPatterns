@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Any
 
 from DPAssignment2.src.db.database import Database
 
@@ -17,11 +16,6 @@ class ISalesRepository(ABC):
 class SalesRepository(ISalesRepository):
    def __init__(self, database: Database) -> None:
        self.db = database
-
-   def _execute_query(self, query: str, params: tuple[Any, ...] = ()) -> None:
-       if self.db.cursor is None:
-           raise RuntimeError("Database not connected")
-       self.db.cursor.execute(query, params)
 
    def get_n_receipts(self) -> int:
        if self.db.cursor is None:

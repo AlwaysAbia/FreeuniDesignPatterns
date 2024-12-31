@@ -1,7 +1,7 @@
 import sqlite3
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Any, List
+from typing import List
 from uuid import UUID, uuid4
 
 from DPAssignment2.src.db.database import Database
@@ -29,11 +29,6 @@ class IProductRepository(ABC):
 class ProductRepository(IProductRepository):
    def __init__(self, database: Database) -> None:
        self.db = database
-
-   def _execute_query(self, query: str, params: tuple[Any, ...]) -> None:
-       if self.db.cursor is None:
-           raise RuntimeError("Database not connected")
-       self.db.cursor.execute(query, params)
 
    def create_product(self, name: str, unit_id: UUID,
                       barcode: str, price: Decimal) -> Product:
