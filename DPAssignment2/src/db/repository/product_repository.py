@@ -23,7 +23,7 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    def update_product(self, product: Product, price: Decimal) -> None:
+    def update_product(self, product_id: UUID, price: Decimal) -> None:
         pass
 
 class ProductRepository(IProductRepository):
@@ -76,18 +76,16 @@ class ProductRepository(IProductRepository):
            price=Decimal(row[4])
        ) for row in self.db.cursor.fetchall()]
 
-   def update_product(self, product: Product, price: Decimal) -> None:
-       if product is None:
-           raise ValueError("Product cannot be None")
+   def update_product(self, product_id: UUID, price: Decimal) -> None:
        try:
            if self.db.cursor is None:
                raise RuntimeError("Database not connected")
            self.db.cursor.execute(
                "UPDATE Product SET price = ? WHERE id = ?",
-               (str(price), str(product.id))
+               (str(price), str(product_id))
            )
            if self.db.cursor.rowcount == 0:
-               raise ValueError(f"Product with id {product.id} not found")
+               raise ValueError(f"Product with id {product_id} not found")
            self.db.commit()
        except sqlite3.Error as e:
            self.db.rollback()

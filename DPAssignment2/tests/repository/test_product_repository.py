@@ -72,7 +72,7 @@ class TestProductRepository:
 
         # Test updating price
         new_price = Decimal("4.99")
-        product_repo.update_product(test_product1, new_price)
+        product_repo.update_product(test_product1.id, new_price)
 
         updated_product = product_repo.read_product(test_product1.id)
         assert updated_product.price == new_price
