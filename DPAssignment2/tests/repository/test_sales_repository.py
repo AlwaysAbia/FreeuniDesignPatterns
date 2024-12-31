@@ -59,12 +59,12 @@ class TestSalesRepository():
             unit_id=sample_unit.id, barcode="211211")
         return product
 
-    def test_no_sales(self, sales_repo: SalesRepository):
+    def test_no_sales(self, sales_repo: SalesRepository) -> None:
         assert sales_repo.get_n_receipts() == 0
         assert sales_repo.get_revenue() == 0
 
     def test_sales(self, sales_repo: SalesRepository, receipt_repo: ReceiptRepository,
-                       sample_product1: Product, sample_product2: Product):
+                       sample_product1: Product, sample_product2: Product) -> None:
         receipt: Receipt = receipt_repo.open_receipt()
         receipt_repo.add_product(receipt.id, sample_product1.id, 5)
         receipt_repo.add_product(receipt.id, sample_product2.id, 10)

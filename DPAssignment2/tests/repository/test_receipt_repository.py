@@ -112,7 +112,8 @@ class TestReceiptRepository:
         assert receipt_with_product.products[0].price_when_sold == sample_product.price
 
 
-    def test_delete_receipt(self, receipt_repo: ReceiptRepository, sample_product: Product) -> None:
+    def test_delete_receipt(self, receipt_repo: ReceiptRepository,
+                            sample_product: Product) -> None:
         receipt = receipt_repo.open_receipt()
         receipt_repo.add_product(receipt.id, sample_product.id, 2)
 
