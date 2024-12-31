@@ -68,5 +68,11 @@ class TestSalesRepository():
         receipt: Receipt = receipt_repo.open_receipt()
         receipt_repo.add_product(receipt.id, sample_product1.id, 5)
         receipt_repo.add_product(receipt.id, sample_product2.id, 10)
+        receipt_repo.close_receipt(receipt.id)
         assert sales_repo.get_n_receipts() == 1
         assert sales_repo.get_revenue() == 5*10+10*15
+        receipt_repo.delete_receipt(receipt.id)
+        assert sales_repo.get_n_receipts() == 0
+        assert sales_repo.get_revenue() == 0
+
+

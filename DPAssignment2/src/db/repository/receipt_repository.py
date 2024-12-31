@@ -68,6 +68,25 @@ class ReceiptRepository:
             self.db.rollback()
             raise RuntimeError(f"Database error while adding product: {e}")
 
+    def delete_receipt(self, receipt_id: UUID) -> None:
+        self._ensure_connection()
+        try:
+            # First delete associated receipt items
+            self._execute_query(
+                "DELETE FROM Receipt_items WHERE receipt_id = ?",
+                (str(receipt_id),)
+            )
+
+            # Then delete the receipt itself
+            self._execute_query(
+                "DELETE FROM Receipt WHERE id = ?",
+                (str(receipt_id),)
+            )
+            self.db.commit()
+        except sqlite3.Error as e:
+            self.db.rollback()
+            raise RuntimeError(f"Error deleting receipt: {e}")
+
     # Database utility methods
     def _ensure_connection(self) -> None:
         if self.db.cursor is None:
