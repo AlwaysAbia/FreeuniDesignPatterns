@@ -94,6 +94,8 @@ class TestReceiptRepository:
     def test_receipt_total_update(self, receipt_repo: ReceiptRepository,
                                   sample_product: Product) -> None:
         receipt = receipt_repo.open_receipt()
+        total = receipt_repo.get_total(receipt.id)
+        assert total == Decimal("0")
         receipt_repo.add_product(receipt.id, sample_product.id, 3)
         total = receipt_repo.get_total(receipt.id)
         assert total == Decimal("30.00")  # 3 * 10.00
