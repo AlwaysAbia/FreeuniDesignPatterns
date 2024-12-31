@@ -11,7 +11,8 @@ class ProductRepository:
     def __init__(self, database: Database) -> None:
         self.db = database
 
-    def create_product(self, name: str, unit_id: UUID, barcode: str, price: Decimal) -> Product:
+    def create_product(self, name: str, unit_id: UUID,
+                       barcode: str, price: Decimal) -> Product:
         if self.db.cursor is None:
             raise RuntimeError("Database not connected")
 
@@ -24,7 +25,8 @@ class ProductRepository:
                 (str(product_id), str(unit_id), name, barcode, str(price))
             )
             self.db.commit()  # Use helper method
-            return Product(id=product_id, unit_id=unit_id, name=name, barcode=barcode, price=price)
+            return Product(id=product_id, unit_id=unit_id,
+                           name=name, barcode=barcode, price=price)
         except sqlite3.Error as e:
             self.db.rollback()  # Use helper method
             raise e

@@ -56,7 +56,7 @@ class Database:
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS Receipt (
                 id TEXT PRIMARY KEY,
-                status TEXT NOT NULL,
+                status INTEGER NOT NULL,
                 total TEXT NOT NULL
             )
         ''')
