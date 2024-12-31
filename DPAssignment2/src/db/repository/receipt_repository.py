@@ -32,6 +32,14 @@ class IReceiptRepository(ABC):
     def delete_receipt(self, receipt_id: UUID) -> None:
         pass
 
+    @abstractmethod
+    def get_receipt_status(self, receipt_id: UUID) -> bool:
+        pass
+
+    @abstractmethod
+    def get_total(self, receipt_id: UUID) -> Decimal:
+        pass
+
 class ReceiptRepository(IReceiptRepository):
    def __init__(self, database: Database) -> None:
        self.db = database
