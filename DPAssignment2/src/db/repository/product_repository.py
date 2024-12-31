@@ -1,4 +1,5 @@
 import sqlite3
+from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Any, List
 from uuid import UUID, uuid4
@@ -7,7 +8,25 @@ from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.models.product import Product
 
 
-class ProductRepository:
+class IProductRepository(ABC):
+    @abstractmethod
+    def create_product(self, name: str, unit_id: UUID,
+                       barcode: str, price: Decimal) -> Product:
+        pass
+
+    @abstractmethod
+    def read_product(self, product_id: UUID) -> Product:
+        pass
+
+    @abstractmethod
+    def list_products(self) -> List[Product]:
+        pass
+
+    @abstractmethod
+    def update_product(self, product: Product, price: Decimal) -> None:
+        pass
+
+class ProductRepository(IProductRepository):
    def __init__(self, database: Database) -> None:
        self.db = database
 

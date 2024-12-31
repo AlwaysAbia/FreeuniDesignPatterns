@@ -1,4 +1,5 @@
 import sqlite3
+from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Any, Dict, List
 from uuid import UUID
@@ -9,7 +10,29 @@ from DPAssignment2.src.models.product import Product
 from DPAssignment2.src.models.receipt import Receipt, ReceiptProduct
 
 
-class ReceiptRepository:
+class IReceiptRepository(ABC):
+    @abstractmethod
+    def open_receipt(self) -> Receipt:
+        pass
+
+    @abstractmethod
+    def close_receipt(self, receipt_id: UUID) -> None:
+        pass
+
+    @abstractmethod
+    def get_receipt(self, receipt_id: UUID) -> Receipt:
+        pass
+
+    @abstractmethod
+    def add_product(self, receipt_id: UUID,
+                    product_id: UUID, quantity: int) -> Receipt:
+        pass
+
+    @abstractmethod
+    def delete_receipt(self, receipt_id: UUID) -> None:
+        pass
+
+class ReceiptRepository(IReceiptRepository):
    def __init__(self, database: Database) -> None:
        self.db = database
 

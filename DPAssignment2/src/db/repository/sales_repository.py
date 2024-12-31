@@ -1,11 +1,21 @@
+from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Any
 
 from DPAssignment2.src.db.database import Database
 
 
-class SalesRepository:
-   def __init__(self, database: Database):
+class ISalesRepository(ABC):
+    @abstractmethod
+    def get_n_receipts(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_revenue(self) -> Decimal:
+        pass
+
+class SalesRepository(ISalesRepository):
+   def __init__(self, database: Database) -> None:
        self.db = database
 
    def _execute_query(self, query: str, params: tuple[Any, ...] = ()) -> None:

@@ -1,4 +1,5 @@
 import sqlite3
+from abc import ABC, abstractmethod
 from typing import Any, List
 from uuid import UUID, uuid4
 
@@ -6,7 +7,20 @@ from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.models.unit import Unit
 
 
-class UnitRepository:
+class IUnitRepository(ABC):
+    @abstractmethod
+    def create_unit(self, unit_name: str) -> Unit:
+        pass
+
+    @abstractmethod
+    def read_unit(self, unit_id: UUID) -> Unit:
+        pass
+
+    @abstractmethod
+    def list_units(self) -> List[Unit]:
+        pass
+
+class UnitRepository(IUnitRepository):
    def __init__(self, database: Database) -> None:
        self.db = database
 
