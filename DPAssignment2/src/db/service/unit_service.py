@@ -28,7 +28,7 @@ class UnitService(IUnitService):
 
     def create_unit(self, name:str) -> Unit:
         if name == "":
-            raise ValueError(f"Can't create unit with no name")
+            raise ValueError("Can't create unit with no name")
         return self.unit_repo.create_unit(name)
 
     def read_unit(self, id: UUID) -> Unit:
