@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from DPAssignment2.src.db.repository.product_repository import ProductRepository
@@ -14,7 +14,7 @@ class IProductService(ABC):
         pass
 
     @abstractmethod
-    def read_product(self, product_id: UUID) -> Product:
+    def read_product(self, product_id: UUID) -> Optional[Product]:
         pass
 
     @abstractmethod
@@ -40,7 +40,7 @@ class ProductService(IProductService):
 
         return self.product_repo.create_product(name, unit_id, barcode, price)
 
-    def read_product(self, product_id: UUID) -> Product:
+    def read_product(self, product_id: UUID) -> Optional[Product]:
         return self.product_repo.read_product(product_id)
 
     def list_products(self) -> List[Product]:

@@ -82,10 +82,7 @@ class TestProductRepository:
             self, product_repo: ProductRepository
     ) -> None:
         nonexistent_id = uuid4()
-
-        with pytest.raises(ValueError,
-                           match=f"Product with id {nonexistent_id} not found"):
-            product_repo.read_product(nonexistent_id)
+        assert product_repo.read_product(nonexistent_id) == None
 
     def test_product_repository_duplicate_barcode(
             self,

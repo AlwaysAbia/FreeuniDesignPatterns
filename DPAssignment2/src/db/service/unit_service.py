@@ -12,7 +12,7 @@ class IUnitService(ABC):
         pass
 
     @abstractmethod
-    def read_unit(self, id: UUID) -> Unit:
+    def read_unit(self, id: UUID) -> Optional[Unit]:
         pass
 
     @abstractmethod

@@ -1,7 +1,7 @@
 import sqlite3
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 from uuid import UUID, uuid4
 
 from DPAssignment2.src.db.database import Database
@@ -15,7 +15,7 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    def read_product(self, product_id: UUID) -> Product:
+    def read_product(self, product_id: UUID) -> Optional[Product]:
         pass
 
     @abstractmethod
@@ -48,14 +48,14 @@ class ProductRepository(IProductRepository):
            self.db.rollback()
            raise e
 
-   def read_product(self, product_id: UUID) -> Product:
+   def read_product(self, product_id: UUID) -> Optional[Product]:
        if self.db.cursor is None:
            raise RuntimeError("Database not connected")
        self.db.cursor.execute(
            "SELECT * FROM Product WHERE id = ?", (str(product_id),))
        row = self.db.cursor.fetchone()
        if row is None:
-           raise ValueError(f"Product with id {product_id} not found")
+           return None
        return Product(
            id=UUID(row[0]),
            unit_id=UUID(row[1]),

@@ -13,7 +13,7 @@ class IUnitRepository(ABC):
         pass
 
     @abstractmethod
-    def read_unit(self, unit_id: UUID) -> Unit:
+    def read_unit(self, unit_id: UUID) -> Optional[Unit]:
         pass
 
     @abstractmethod
