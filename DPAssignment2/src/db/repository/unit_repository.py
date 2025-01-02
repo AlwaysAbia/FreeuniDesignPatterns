@@ -1,6 +1,6 @@
 import sqlite3
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from uuid import UUID, uuid4
 
 from DPAssignment2.src.db.database import Database
@@ -39,7 +39,7 @@ class UnitRepository(IUnitRepository):
            self.db.rollback()
            raise e
 
-   def read_unit(self, unit_id: UUID) -> Unit:
+   def read_unit(self, unit_id: UUID) -> Optional[Unit]:
        if self.db.cursor is None:
            raise RuntimeError("Database not connected")
        self.db.cursor.execute(
@@ -49,7 +49,7 @@ class UnitRepository(IUnitRepository):
        assert self.db.cursor is not None
        row = self.db.cursor.fetchone()
        if row is None:
-           raise ValueError(f"Unit with id {unit_id} not found")
+           return None
        return Unit(id=UUID(row[0]), name=row[1])
 
    def list_units(self) -> List[Unit]:

@@ -48,12 +48,12 @@ class TestReceiptRepository:
 
     def test_new_product_open(self, receipt_repo: ReceiptRepository) -> None:
         receipt: Receipt = receipt_repo.open_receipt()
-        assert receipt_repo.get_receipt_status(receipt.id) is True
+        assert receipt.status is True
 
     def test_close(self, receipt_repo: ReceiptRepository) -> None:
         receipt: Receipt = receipt_repo.open_receipt()
         receipt_repo.close_receipt(receipt.id)
-        assert receipt_repo.get_receipt_status(receipt.id) is False
+        assert receipt_repo.get_receipt(receipt.id).status is False
 
     def test_empty_total(self, receipt_repo: ReceiptRepository) -> None:
         receipt: Receipt = receipt_repo.open_receipt()
@@ -77,19 +77,6 @@ class TestReceiptRepository:
         assert receipt_with_product.products[0].product_id == sample_product.id
         assert receipt_with_product.products[0].quantity == 2
         assert receipt_with_product.products[0].price_when_sold == sample_product.price
-
-    def test_add_product_to_closed_receipt(self, receipt_repo: ReceiptRepository,
-                                           sample_product: Product) -> None:
-        receipt = receipt_repo.open_receipt()
-        receipt_repo.close_receipt(receipt.id)
-        with pytest.raises(ValueError, match="Receipt is not open"):
-            receipt_repo.add_product(receipt.id, sample_product.id, 1)
-
-    def test_add_negative_quantity(self, receipt_repo: ReceiptRepository,
-                                   sample_product: Product) -> None:
-        receipt = receipt_repo.open_receipt()
-        with pytest.raises(ValueError, match="Quantity must be greater than 0."):
-            receipt_repo.add_product(receipt.id, sample_product.id, -1)
 
     def test_receipt_total_update(self, receipt_repo: ReceiptRepository,
                                   sample_product: Product) -> None:

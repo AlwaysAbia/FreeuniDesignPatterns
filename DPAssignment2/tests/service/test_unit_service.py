@@ -32,8 +32,7 @@ class TestUnitService:
         assert read == created
 
     def test_read_nonexistent_unit(self, unit_service: UnitService) -> None:
-        with pytest.raises(ValueError):
-            unit_service.read_unit(uuid4())
+        assert unit_service.read_unit(uuid4()) == None
 
     def test_list_units(self, unit_service: UnitService) -> None:
         unit1: Unit = unit_service.create_unit("kg")

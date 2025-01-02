@@ -43,9 +43,7 @@ class TestUnitRepository:
         from uuid import uuid4
         nonexistent_id = uuid4()
 
-        with pytest.raises(ValueError,
-                           match=f"Unit with id {nonexistent_id} not found"):
-            unit_repo.read_unit(nonexistent_id)
+        assert unit_repo.read_unit(nonexistent_id) is None
 
     def test_create_duplicate_unit_name(
             self, unit_repo: UnitRepository

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from DPAssignment2.src.db.repository.unit_repository import UnitRepository
@@ -31,7 +31,7 @@ class UnitService(IUnitService):
             raise ValueError("Can't create unit with no name")
         return self.unit_repo.create_unit(name)
 
-    def read_unit(self, id: UUID) -> Unit:
+    def read_unit(self, id: UUID) -> Optional[Unit]:
         return self.unit_repo.read_unit(id)
 
     def list_units(self) -> List[Unit]:

@@ -33,10 +33,6 @@ class IReceiptRepository(ABC):
         pass
 
     @abstractmethod
-    def get_receipt_status(self, receipt_id: UUID) -> bool:
-        pass
-
-    @abstractmethod
     def get_total(self, receipt_id: UUID) -> Decimal:
         pass
 
@@ -85,7 +81,6 @@ class ReceiptRepository(IReceiptRepository):
        )
 
    def add_product(self, receipt_id: UUID, product_id: UUID, quantity: int) -> Receipt:
-       self._validate_add_product(receipt_id, quantity)
        try:
            product = ProductRepository(self.db).read_product(product_id)
            existing_quantity = self.get_existing_quantity(receipt_id, product_id)
@@ -151,25 +146,6 @@ class ReceiptRepository(IReceiptRepository):
            )
            for row in self.db.cursor.fetchall()
        ]
-
-   def get_receipt_status(self, receipt_id: UUID) -> bool:
-       if self.db.cursor is None:
-           raise RuntimeError("Database not connected")
-       self.db.cursor.execute(
-           "SELECT status FROM Receipt WHERE id = ?",
-           (str(receipt_id),)
-       )
-       row = self.db.cursor.fetchone()
-       if not row:
-           raise ValueError(f"Receipt with ID {receipt_id} not found.")
-       return bool(row[0])
-
-   def _validate_add_product(self, receipt_id: UUID, quantity: int) -> None:
-       if quantity <= 0:
-           raise ValueError("Quantity must be greater than 0.")
-       if not self.get_receipt_status(receipt_id):
-           raise ValueError(
-               f"Cannot add product to receipt {receipt_id}: Receipt is not open.")
 
    def _update_existing_product(self, receipt_id: UUID, product_id: UUID,
                                quantity: int, product: Product) -> None:

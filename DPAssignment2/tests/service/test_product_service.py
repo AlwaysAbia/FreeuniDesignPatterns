@@ -12,7 +12,7 @@ from DPAssignment2.src.models.product import Product
 from DPAssignment2.src.models.unit import Unit
 
 
-class TestUnitService:
+class TestProductService:
     @pytest.fixture
     def init_db(self) -> Generator[Database, None, None]:
         db = Database(":memory:")  # Use in-memory database for testing
