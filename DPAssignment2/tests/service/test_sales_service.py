@@ -8,10 +8,10 @@ from DPAssignment2.src.db.repository.product_repository import ProductRepository
 from DPAssignment2.src.db.repository.receipt_repository import ReceiptRepository
 from DPAssignment2.src.db.repository.sales_repository import SalesRepository
 from DPAssignment2.src.db.repository.unit_repository import UnitRepository
-from DPAssignment2.src.db.service.product_service import ProductService
-from DPAssignment2.src.db.service.receipt_service import ReceiptService
-from DPAssignment2.src.db.service.sales_service import SalesService
-from DPAssignment2.src.db.service.unit_service import UnitService
+from DPAssignment2.src.service import ProductService
+from DPAssignment2.src.service import ReceiptService
+from DPAssignment2.src.service import SalesService
+from DPAssignment2.src.service import UnitService
 from DPAssignment2.src.models.product import Product
 from DPAssignment2.src.models.receipt import Receipt
 from DPAssignment2.src.models.unit import Unit

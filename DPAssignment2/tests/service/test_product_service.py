@@ -6,8 +6,8 @@ import pytest
 from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.db.repository.product_repository import ProductRepository
 from DPAssignment2.src.db.repository.unit_repository import UnitRepository
-from DPAssignment2.src.db.service.product_service import ProductService
-from DPAssignment2.src.db.service.unit_service import UnitService
+from DPAssignment2.src.service import ProductService
+from DPAssignment2.src.service import UnitService
 from DPAssignment2.src.models.product import Product
 from DPAssignment2.src.models.unit import Unit
 
