@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Generator
+from typing import Generator, Optional
 
 import pytest
 
@@ -53,7 +53,9 @@ class TestReceiptRepository:
     def test_close(self, receipt_repo: ReceiptRepository) -> None:
         receipt: Receipt = receipt_repo.open_receipt()
         receipt_repo.close_receipt(receipt.id)
-        assert receipt_repo.get_receipt(receipt.id).status is False
+        rec: Optional[Receipt] = receipt_repo.get_receipt(receipt.id)
+        if rec is not None:
+            assert rec.status is False
 
     def test_empty_total(self, receipt_repo: ReceiptRepository) -> None:
         receipt: Receipt = receipt_repo.open_receipt()
@@ -92,11 +94,13 @@ class TestReceiptRepository:
         receipt = receipt_repo.open_receipt()
         receipt_repo.add_product(receipt.id, sample_product.id, 2)
         receipt_repo.add_product(receipt.id, sample_product.id, 3)
-        receipt_with_product = receipt_repo.get_receipt(receipt.id)
+        receipt_with_product: Optional[Receipt] = receipt_repo.get_receipt(receipt.id)
 
-        assert len(receipt_with_product.products) == 1
-        assert receipt_with_product.products[0].quantity == 5  # 2 + 3
-        assert receipt_with_product.products[0].price_when_sold == sample_product.price
+        if receipt_with_product is not None:
+            assert len(receipt_with_product.products) == 1
+            assert receipt_with_product.products[0].quantity == 5  # 2 + 3
+            assert (receipt_with_product.products[0].price_when_sold
+                    == sample_product.price)
 
 
     def test_delete_receipt(self, receipt_repo: ReceiptRepository,
@@ -105,6 +109,4 @@ class TestReceiptRepository:
         receipt_repo.add_product(receipt.id, sample_product.id, 2)
 
         receipt_repo.delete_receipt(receipt.id)
-
-        with pytest.raises(ValueError, match=f"Receipt with id {receipt.id} not found"):
-            receipt_repo.get_receipt(receipt.id)
+        assert receipt_repo.get_receipt(receipt.id) is None

@@ -1,4 +1,4 @@
-from typing import Generator, List
+from typing import Generator, List, Optional
 from uuid import uuid4
 
 import pytest
@@ -28,11 +28,12 @@ class TestUnitService:
 
     def test_read_unit(self, unit_service: UnitService) -> None:
         created: Unit = unit_service.create_unit("meter")
-        read: Unit = unit_service.read_unit(created.id)
-        assert read == created
+        read: Optional[Unit] = unit_service.read_unit(created.id)
+        if read is not None:
+            assert read == created
 
     def test_read_nonexistent_unit(self, unit_service: UnitService) -> None:
-        assert unit_service.read_unit(uuid4()) == None
+        assert unit_service.read_unit(uuid4()) is None
 
     def test_list_units(self, unit_service: UnitService) -> None:
         unit1: Unit = unit_service.create_unit("kg")

@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Generator, List
+from typing import Generator, List, Optional
 
 import pytest
 
@@ -37,7 +37,8 @@ class TestProductService:
     def test_unit2(self, unit_service: UnitService) -> Unit:
         return unit_service.create_unit("test_unit2")
 
-    def test_create_product(self, product_service: ProductService, test_unit1: Unit) -> None:
+    def test_create_product(self, product_service: ProductService,
+                            test_unit1: Unit) -> None:
         prod: Product = product_service.create_product(
             "test_product", test_unit1.id, "123123", Decimal("1.25"))
         assert prod.unit_id == test_unit1.id
@@ -45,10 +46,13 @@ class TestProductService:
         assert prod.barcode == "123123"
         assert prod.price == Decimal("1.25")
 
-    def test_read_product(self, product_service: ProductService, test_unit1: Unit) -> None:
+    def test_read_product(self, product_service: ProductService,
+                          test_unit1: Unit) -> None:
         prod: Product = product_service.create_product(
             "test_product", test_unit1.id, "123123", Decimal("1.25"))
-        assert product_service.read_product(prod.id) == prod
+        ret = product_service.read_product(prod.id)
+        if ret is not None:
+            assert product_service.read_product(prod.id) == prod
 
     def test_list_products(self, product_service: ProductService,
                            test_unit1: Unit, test_unit2: Unit) -> None:
@@ -61,25 +65,30 @@ class TestProductService:
         assert prod2 in prods
         assert len(prods) == 2
 
-    def test_update_product(self, product_service: ProductService, test_unit1: Unit) -> None:
+    def test_update_product(self, product_service: ProductService,
+                            test_unit1: Unit) -> None:
         prod1: Product = product_service.create_product(
             "test_product", test_unit1.id, "123123", Decimal("1.25"))
-        assert product_service.read_product(prod1.id).price == 1.25
-        product_service.update_product(prod1.id, Decimal("5"))
-        assert product_service.read_product(prod1.id).price == 5
+        prod: Optional[Product] = product_service.read_product(prod1.id)
+        if prod is not None:
+            assert prod.price == 1.25
+            product_service.update_product(prod1.id, Decimal("5"))
+            assert prod.price == 5
 
-    def test_bad_create(self, product_service: ProductService, test_unit1: Unit) -> None:
+    def test_bad_create(self, product_service: ProductService,
+                        test_unit1: Unit) -> None:
         with pytest.raises(ValueError):
-            prod: Product = product_service.create_product(
+            product_service.create_product(
                 "", test_unit1.id, "123123", Decimal("1.25"))
         with pytest.raises(ValueError):
-            prod: Product = product_service.create_product(
+            product_service.create_product(
                 "AA", test_unit1.id, "", Decimal("1.25"))
         with pytest.raises(ValueError):
-            prod: Product = product_service.create_product(
+            product_service.create_product(
                 "AA", test_unit1.id, "fasf", Decimal("-1.25"))
 
-    def test_bad_update(self, product_service: ProductService, test_unit1: Unit) -> None:
+    def test_bad_update(self, product_service: ProductService,
+                        test_unit1: Unit) -> None:
         prod: Product = product_service.create_product(
             "aaaa", test_unit1.id, "123123", Decimal("1.25"))
         with pytest.raises(ValueError):

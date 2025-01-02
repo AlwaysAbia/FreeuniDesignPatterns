@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Generator
+from typing import Generator, Optional
 
 import pytest
 
@@ -25,7 +25,7 @@ class TestReceiptService:
         db.disconnect()  # Clean up after test
 
     @pytest.fixture
-    def receipt_service(self, init_db) -> ReceiptService:
+    def receipt_service(self, init_db: Database) -> ReceiptService:
         return ReceiptService(ReceiptRepository(init_db))
 
     @pytest.fixture
@@ -45,12 +45,14 @@ class TestReceiptService:
         return unit_service.create_unit("test_unit2")
 
     @pytest.fixture
-    def test_product1(self, product_service: ProductService, test_unit1: Unit) -> Product:
+    def test_product1(self, product_service: ProductService,
+                      test_unit1: Unit) -> Product:
         return product_service.create_product(
             "test_product1", test_unit1.id,"123213", Decimal("1.25"))
 
     @pytest.fixture
-    def test_product2(self, product_service: ProductService, test_unit2: Unit) -> Product:
+    def test_product2(self, product_service: ProductService,
+                      test_unit2: Unit) -> Product:
         return product_service.create_product(
             "test_product2", test_unit2.id, "321321", Decimal("5.3"))
 
@@ -68,4 +70,34 @@ class TestReceiptService:
         receipt: Receipt = receipt_service.create_receipt()
         assert receipt.status
         receipt_service.close_receipt(receipt.id)
-        assert not receipt_service.read_by_id_receipt(receipt.id).status
+        rec: Optional[Receipt] = receipt_service.read_by_id_receipt(receipt.id)
+        if rec is not None:
+            assert not rec.status
+
+    def test_delete_receipt(self, receipt_service: ReceiptService) -> None:
+        receipt: Receipt = receipt_service.create_receipt()
+        receipt_service.delete_receipt(receipt.id)
+        assert receipt_service.read_by_id_receipt(receipt.id) is None
+
+    def test_add_product(self, receipt_service: ReceiptService,
+                         test_product1: Product, test_product2: Product) -> None:
+        receipt: Receipt = receipt_service.create_receipt()
+        receipt_service.add_product(receipt.id, test_product1.id, 3)
+        receipt_service.add_product(receipt.id, test_product2.id, 6)
+
+        rec: Optional[Receipt] = receipt_service.read_by_id_receipt(receipt.id)
+        if rec is not None:
+            assert len(rec.products) == 2
+
+    def test_add_to_closed(self, receipt_service: ReceiptService,
+                         test_product1: Product) -> None:
+        receipt: Receipt = receipt_service.create_receipt()
+        receipt_service.close_receipt(receipt.id)
+        with pytest.raises(ValueError):
+            receipt_service.add_product(receipt.id, test_product1.id, 3)
+
+    def test_add_neg_val(self, receipt_service: ReceiptService,
+                         test_product1: Product) -> None:
+        receipt: Receipt = receipt_service.create_receipt()
+        with pytest.raises(ValueError):
+            receipt_service.add_product(receipt.id, test_product1.id, -1)

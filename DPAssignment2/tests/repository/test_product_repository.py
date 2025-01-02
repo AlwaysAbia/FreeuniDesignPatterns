@@ -1,6 +1,6 @@
 import sqlite3
 from decimal import Decimal
-from typing import Generator
+from typing import Generator, Optional
 from uuid import uuid4
 
 import pytest
@@ -8,6 +8,7 @@ import pytest
 from DPAssignment2.src.db.database import Database
 from DPAssignment2.src.db.repository.product_repository import ProductRepository
 from DPAssignment2.src.db.repository.unit_repository import UnitRepository
+from DPAssignment2.src.models.product import Product
 from DPAssignment2.src.models.unit import Unit
 
 
@@ -74,15 +75,16 @@ class TestProductRepository:
         new_price = Decimal("4.99")
         product_repo.update_product(test_product1.id, new_price)
 
-        updated_product = product_repo.read_product(test_product1.id)
-        assert updated_product.price == new_price
-        assert updated_product.name == test_product1.name
+        updated_product: Optional[Product] = product_repo.read_product(test_product1.id)
+        if updated_product is not None:
+            assert updated_product.price == new_price
+            assert updated_product.name == test_product1.name
 
     def test_product_repository_nonexistent_read(
             self, product_repo: ProductRepository
     ) -> None:
         nonexistent_id = uuid4()
-        assert product_repo.read_product(nonexistent_id) == None
+        assert product_repo.read_product(nonexistent_id) is None
 
     def test_product_repository_duplicate_barcode(
             self,

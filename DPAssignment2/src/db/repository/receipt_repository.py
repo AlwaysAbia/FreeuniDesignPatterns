@@ -1,7 +1,7 @@
 import sqlite3
 from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from DPAssignment2.src.db.database import Database
@@ -20,7 +20,7 @@ class IReceiptRepository(ABC):
         pass
 
     @abstractmethod
-    def get_receipt(self, receipt_id: UUID) -> Receipt:
+    def get_receipt(self, receipt_id: UUID) -> Optional[Receipt]:
         pass
 
     @abstractmethod
@@ -68,11 +68,13 @@ class ReceiptRepository(IReceiptRepository):
            self.db.rollback()
            raise e
 
-   def get_receipt(self, receipt_id: UUID) -> Receipt:
+   def get_receipt(self, receipt_id: UUID) -> Optional[Receipt]:
        if self.db.cursor is None:
            raise RuntimeError("Database not connected")
        receipt_data = self._get_receipt_data(receipt_id)
        items = self._get_receipt_items(receipt_id)
+       if receipt_data is None:
+           return None
        return Receipt(
            id=receipt_data['id'],
            status=receipt_data['status'],
@@ -82,16 +84,21 @@ class ReceiptRepository(IReceiptRepository):
 
    def add_product(self, receipt_id: UUID, product_id: UUID, quantity: int) -> Receipt:
        try:
-           product = ProductRepository(self.db).read_product(product_id)
-           existing_quantity = self.get_existing_quantity(receipt_id, product_id)
-
+           product: Optional[Product] = (
+               ProductRepository(self.db).read_product(product_id))
+           existing_quantity: int = self.get_existing_quantity(receipt_id, product_id)
+           if product is None:
+               raise ValueError("Product not found")
            if existing_quantity:
                self._update_existing_product(receipt_id, product_id, quantity, product)
            else:
                self._add_new_product(receipt_id, product_id, quantity, product)
 
            self._update_receipt_total(receipt_id)
-           return self.get_receipt(receipt_id)
+           ret: Optional[Receipt] = self.get_receipt(receipt_id)
+           if ret is None:
+               raise ValueError("Receipt not found")
+           return ret
 
        except sqlite3.Error as e:
            self.db.rollback()
@@ -114,7 +121,7 @@ class ReceiptRepository(IReceiptRepository):
            self.db.rollback()
            raise RuntimeError(f"Error deleting receipt: {e}")
 
-   def _get_receipt_data(self, receipt_id: UUID) -> Dict[str, Any]:
+   def _get_receipt_data(self, receipt_id: UUID) -> Optional[Dict[str, Any]]:
        if self.db.cursor is None:
            raise RuntimeError("Database not connected")
        self.db.cursor.execute(
@@ -123,8 +130,7 @@ class ReceiptRepository(IReceiptRepository):
        )
        row = self.db.cursor.fetchone()
        if row is None:
-           raise ValueError(f"Receipt with id {receipt_id} not found")
-
+           return None
        return {
            'id': UUID(row[0]),
            'status': bool(row[1]),

@@ -1,4 +1,5 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
+from typing import Optional
 from uuid import UUID
 
 from DPAssignment2.src.db.repository.receipt_repository import ReceiptRepository
@@ -11,7 +12,7 @@ class IReceiptService(ABC):
         pass
 
     @abstractmethod
-    def read_by_id_receipt(self, receipt_id: UUID) -> Receipt:
+    def read_by_id_receipt(self, receipt_id: UUID) -> Optional[Receipt]:
         pass
 
     @abstractmethod
@@ -33,7 +34,7 @@ class ReceiptService(IReceiptService):
     def create_receipt(self) -> Receipt:
         return self.receipt_repo.open_receipt()
 
-    def read_by_id_receipt(self, receipt_id: UUID) -> Receipt:
+    def read_by_id_receipt(self, receipt_id: UUID) -> Optional[Receipt]:
         return self.receipt_repo.get_receipt(receipt_id)
 
     def close_receipt(self, receipt_id: UUID) -> None:
@@ -45,6 +46,9 @@ class ReceiptService(IReceiptService):
     def add_product(self, receipt_id: UUID, product_id: UUID, quantity: int) -> Receipt:
         if quantity <= 0:
             raise ValueError("Quantity must be greater than 0")
-        if not self.receipt_repo.get_receipt(receipt_id).status:
+        rec: Optional[Receipt] = self.receipt_repo.get_receipt(receipt_id)
+        if rec is None:
+            raise ValueError("Receipt not found")
+        if not rec.status:
             raise ValueError("Receipt is not open")
         return self.receipt_repo.add_product(receipt_id, product_id, quantity)
