@@ -62,9 +62,10 @@ class TestSalesService:
         return product_service.create_product(
             "test_product2", test_unit2.id, "321321", Decimal("5.3"))
 
-    def test_n_receipt(self, sales_service: SalesService, receipt_service: ReceiptService,
+    def test_n_receipt(self, sales_service: SalesService,
+                       receipt_service: ReceiptService,
                      test_product1: Product, test_product2: Product) -> None:
-        rec: Receipt = receipt_service.create_receipt()
+        receipt_service.create_receipt()
 
         assert sales_service.get_n_receipts() == 1
         receipt_service.create_receipt()
