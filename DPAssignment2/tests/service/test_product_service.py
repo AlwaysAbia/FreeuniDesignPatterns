@@ -69,10 +69,10 @@ class TestProductService:
                             test_unit1: Unit) -> None:
         prod1: Product = product_service.create_product(
             "test_product", test_unit1.id, "123123", Decimal("1.25"))
+        assert prod1.price == 1.25
+        product_service.update_product(prod1.id, Decimal("5"))
         prod: Optional[Product] = product_service.read_product(prod1.id)
         if prod is not None:
-            assert prod.price == 1.25
-            product_service.update_product(prod1.id, Decimal("5"))
             assert prod.price == 5
 
     def test_bad_create(self, product_service: ProductService,

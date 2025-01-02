@@ -13,7 +13,7 @@ from DPAssignment2.src.models.receipt import Receipt
 from DPAssignment2.src.models.unit import Unit
 
 
-class TestSalesRepository():
+class TestSalesRepository:
     @pytest.fixture
     def init_repository(self) -> Generator[Database, None, None]:
         db = Database(":memory:")  # Use in-memory database for testing
