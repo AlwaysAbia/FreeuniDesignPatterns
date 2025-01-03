@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+from typing import AsyncIterator
+
 from fastapi import Depends, FastAPI
 
 from DPAssignment2.src.api.product_api import router as product_router
@@ -7,8 +9,9 @@ from DPAssignment2.src.api.sales_api import router as sales_router
 from DPAssignment2.src.api.unit_api import router as unit_router
 from DPAssignment2.src.db.db_dependency import DatabaseManager, get_db
 
+
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     db = DatabaseManager.get_instance()
     db.connect()
     db.create_tables()
