@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import List
+from typing import Generator, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -34,7 +34,7 @@ class ProductsResponse(BaseModel):
     products: List[Product]
 
 class ErrorResponse(BaseModel):
-    error: dict
+    error: dict[str, str]
 
 #Create Router
 router = APIRouter(
@@ -43,7 +43,7 @@ router = APIRouter(
 )
 
 # Database dependency
-def get_db():
+def get_db() -> Generator[Database, None, None]:
     db = Database()
     db.connect()
     try:

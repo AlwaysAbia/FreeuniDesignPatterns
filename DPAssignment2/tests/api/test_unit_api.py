@@ -1,7 +1,9 @@
-import pytest
-from fastapi.testclient import TestClient
+from typing import Generator
 from unittest.mock import Mock, patch
 from uuid import UUID
+
+import pytest
+from fastapi.testclient import TestClient
 
 from DPAssignment2.main import app
 
@@ -22,11 +24,11 @@ SAMPLE_UNIT_2 = {
 
 # Fixtures
 @pytest.fixture
-def test_client():
+def test_client() -> TestClient:
     return TestClient(app)
 
 @pytest.fixture
-def mock_service():
+def mock_service() -> Generator[Mock, None, None]:
     with patch('DPAssignment2.src.api.unit_api.UnitService') as MockService:
         mock = Mock()
         MockService.return_value = mock
@@ -34,7 +36,8 @@ def mock_service():
 
 # Tests for POST /units
 class TestCreateUnit:
-    def test_create_unit_success(self, test_client, mock_service):
+    def test_create_unit_success(self, test_client: TestClient,
+                                 mock_service: Mock) -> None:
         # Setup
         mock_service.create_unit.return_value.id = SAMPLE_UNIT_ID
         mock_service.create_unit.return_value.name = "კგ"
@@ -47,9 +50,11 @@ class TestCreateUnit:
         assert response.json() == {"unit": SAMPLE_UNIT}
         mock_service.create_unit.assert_called_once_with("კგ")
 
-    def test_create_unit_conflict(self, test_client, mock_service):
+    def test_create_unit_conflict(self, test_client: TestClient,
+                                  mock_service: Mock) -> None:
         # Setup
-        mock_service.create_unit.side_effect = ValueError("Unit with name<კგ> already exists.")
+        mock_service.create_unit.side_effect = (
+            ValueError("Unit with name<კგ> already exists."))
 
         # Execute
         response = test_client.post("/units", json={"name": "კგ"})
@@ -60,9 +65,11 @@ class TestCreateUnit:
             "detail": {"message": "Unit with name<კგ> already exists."}
         }
 
-    def test_create_unit_empty_name(self, test_client, mock_service):
+    def test_create_unit_empty_name(self, test_client: TestClient,
+                                    mock_service: Mock) -> None:
         # Setup
-        mock_service.create_unit.side_effect = ValueError("Can't create unit with no name")
+        mock_service.create_unit.side_effect = (
+            ValueError("Can't create unit with no name"))
 
         # Execute
         response = test_client.post("/units", json={"name": ""})
@@ -73,7 +80,7 @@ class TestCreateUnit:
             "detail": {"message": "Can't create unit with no name"}
         }
 
-    def test_create_unit_missing_name(self, test_client):
+    def test_create_unit_missing_name(self, test_client: TestClient) -> None:
         # Execute
         response = test_client.post("/units", json={})
 
@@ -82,7 +89,8 @@ class TestCreateUnit:
 
 # Tests for GET /units/{unit_id}
 class TestGetUnit:
-    def test_get_unit_success(self, test_client, mock_service):
+    def test_get_unit_success(self, test_client: TestClient,
+                              mock_service: Mock) -> None:
         # Setup
         mock_service.read_unit.return_value.id = SAMPLE_UNIT_ID
         mock_service.read_unit.return_value.name = "კგ"
@@ -95,7 +103,8 @@ class TestGetUnit:
         assert response.json() == {"unit": SAMPLE_UNIT}
         mock_service.read_unit.assert_called_once_with(SAMPLE_UNIT_ID)
 
-    def test_get_unit_not_found(self, test_client, mock_service):
+    def test_get_unit_not_found(self, test_client: TestClient,
+                                mock_service: Mock) -> None:
         # Setup
         mock_service.read_unit.return_value = None
 
@@ -108,7 +117,7 @@ class TestGetUnit:
             "detail": {"message": f"Unit with id<{SAMPLE_UNIT_ID}> does not exist."}
         }
 
-    def test_get_unit_invalid_uuid(self, test_client):
+    def test_get_unit_invalid_uuid(self, test_client: TestClient) -> None:
         # Execute
         response = test_client.get("/units/not-a-uuid")
 
@@ -117,7 +126,8 @@ class TestGetUnit:
 
 # Tests for GET /units
 class TestListUnits:
-    def test_list_units_success(self, test_client, mock_service):
+    def test_list_units_success(self, test_client: TestClient,
+                                mock_service: Mock) -> None:
         # Setup
         mock_unit1 = Mock()
         mock_unit1.id = SAMPLE_UNIT_ID
@@ -138,7 +148,8 @@ class TestListUnits:
             "units": [SAMPLE_UNIT, SAMPLE_UNIT_2]
         }
 
-    def test_list_units_empty(self, test_client, mock_service):
+    def test_list_units_empty(self, test_client: TestClient,
+                              mock_service: Mock) -> None:
         # Setup
         mock_service.list_units.return_value = []
 
