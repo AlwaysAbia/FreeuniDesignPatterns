@@ -1,11 +1,12 @@
 from decimal import Decimal
-from typing import Any, Generator, List, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from DPAssignment2.src.db.database import Database
+from DPAssignment2.src.db.db_dependency import get_db
 from DPAssignment2.src.db.repository.product_repository import ProductRepository
 from DPAssignment2.src.models.product import Product as ProductModel
 from DPAssignment2.src.service.product_service import ProductService
@@ -40,14 +41,6 @@ router: APIRouter = APIRouter(
     prefix="/products",
     tags=["products"]
 )
-
-def get_db() -> Generator[Database, None, None]:
-    db: Database = Database()
-    db.connect()
-    try:
-        yield db
-    finally:
-        db.disconnect()
 
 def get_product_service(db: Database = Depends(get_db)) -> ProductService:
     return ProductService(ProductRepository(db))

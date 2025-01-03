@@ -1,10 +1,10 @@
 from decimal import Decimal
-from typing import Generator
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from DPAssignment2.src.db.database import Database
+from DPAssignment2.src.db.db_dependency import get_db
 from DPAssignment2.src.db.repository.sales_repository import SalesRepository
 from DPAssignment2.src.service.sales_service import SalesService
 
@@ -16,14 +16,6 @@ router: APIRouter = APIRouter(
     prefix="/sales",
     tags=["sales"]
 )
-
-def get_db() -> Generator[Database, None, None]:
-    db: Database = Database()
-    db.connect()
-    try:
-        yield db
-    finally:
-        db.disconnect()
 
 def get_sales_service(db: Database = Depends(get_db)) -> SalesService:
     return SalesService(SalesRepository(db))

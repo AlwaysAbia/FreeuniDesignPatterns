@@ -1,10 +1,11 @@
-from typing import Generator, List
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from DPAssignment2.src.db.database import Database
+from DPAssignment2.src.db.db_dependency import get_db
 from DPAssignment2.src.db.repository.unit_repository import UnitRepository
 from DPAssignment2.src.service.unit_service import UnitService
 
@@ -31,15 +32,6 @@ router = APIRouter(
     prefix="/units",
     tags=["units"]
 )
-
-# Database dependency
-def get_db() -> Generator[Database, None, None]:
-    db = Database()
-    db.connect()
-    try:
-        yield db
-    finally:
-        db.disconnect()
 
 # Service dependency
 def get_unit_service(db: Database = Depends(get_db)) -> UnitService:

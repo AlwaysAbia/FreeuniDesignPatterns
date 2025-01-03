@@ -1,11 +1,12 @@
 from decimal import Decimal
-from typing import Any, Generator, List, Optional
+from typing import Any, List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from DPAssignment2.src.db.database import Database
+from DPAssignment2.src.db.db_dependency import get_db
 from DPAssignment2.src.db.repository.receipt_repository import ReceiptRepository
 from DPAssignment2.src.models.receipt import Receipt as ReceiptModel
 from DPAssignment2.src.service.receipt_service import ReceiptService
@@ -45,15 +46,6 @@ router: APIRouter = APIRouter(
     prefix="/receipts",
     tags=["receipts"]
 )
-
-
-def get_db() -> Generator[Database, None, None]:
-    db: Database = Database()
-    db.connect()
-    try:
-        yield db
-    finally:
-        db.disconnect()
 
 
 def get_receipt_service(db: Database = Depends(get_db)) -> ReceiptService:
