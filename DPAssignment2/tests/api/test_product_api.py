@@ -1,7 +1,7 @@
+from decimal import Decimal
 from typing import Generator
 from unittest.mock import Mock, patch
 from uuid import UUID
-from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
@@ -35,7 +35,8 @@ def mock_service() -> Generator[Mock, None, None]:
 
 # Tests for POST /products
 class TestCreateProduct:
-    def test_create_product_success(self, test_client: TestClient, mock_service: Mock) -> None:
+    def test_create_product_success(self, test_client: TestClient,
+                                    mock_service: Mock) -> None:
         # Setup
         mock_service.create_product.return_value.id = SAMPLE_PRODUCT_ID
         mock_service.create_product.return_value.unit_id = SAMPLE_UNIT_ID
@@ -61,9 +62,11 @@ class TestCreateProduct:
             price=Decimal("520.00")
         )
 
-    def test_create_product_duplicate_barcode(self, test_client: TestClient, mock_service: Mock) -> None:
+    def test_create_product_duplicate_barcode(self, test_client: TestClient,
+                                              mock_service: Mock) -> None:
         # Setup
-        mock_service.create_product.side_effect = ValueError("Product with barcode<1234567890> already exists.")
+        mock_service.create_product.side_effect = (
+            ValueError("Product with barcode<1234567890> already exists."))
 
         # Execute
         response = test_client.post("/products", json={
@@ -81,7 +84,8 @@ class TestCreateProduct:
 
 # Tests for GET /products/{product_id}
 class TestGetProduct:
-    def test_get_product_success(self, test_client: TestClient, mock_service: Mock) -> None:
+    def test_get_product_success(self, test_client: TestClient,
+                                 mock_service: Mock) -> None:
         # Setup
         mock_service.read_product.return_value.id = SAMPLE_PRODUCT_ID
         mock_service.read_product.return_value.unit_id = SAMPLE_UNIT_ID
@@ -97,7 +101,8 @@ class TestGetProduct:
         assert response.json() == {"product": SAMPLE_PRODUCT}
         mock_service.read_product.assert_called_once_with(SAMPLE_PRODUCT_ID)
 
-    def test_get_product_not_found(self, test_client: TestClient, mock_service: Mock) -> None:
+    def test_get_product_not_found(self, test_client: TestClient,
+                                   mock_service: Mock) -> None:
         # Setup
         mock_service.read_product.return_value = None
 
@@ -107,12 +112,14 @@ class TestGetProduct:
         # Assert
         assert response.status_code == 404
         assert response.json() == {
-            "detail": {"message": f"Product with id<{SAMPLE_PRODUCT_ID}> does not exist."}
+            "detail": {"message":
+                           f"Product with id<{SAMPLE_PRODUCT_ID}> does not exist."}
         }
 
 # Tests for GET /products
 class TestListProducts:
-    def test_list_products_success(self, test_client: TestClient, mock_service: Mock) -> None:
+    def test_list_products_success(self, test_client: TestClient,
+                                   mock_service: Mock) -> None:
         # Setup
         mock_product = Mock()
         mock_product.id = SAMPLE_PRODUCT_ID
@@ -134,7 +141,8 @@ class TestListProducts:
 
 # Tests for PATCH /products/{product_id}
 class TestUpdateProduct:
-    def test_update_product_success(self, test_client: TestClient, mock_service: Mock) -> None:
+    def test_update_product_success(self, test_client: TestClient,
+                                    mock_service: Mock) -> None:
         # Execute
         response = test_client.patch(
             f"/products/{SAMPLE_PRODUCT_ID}",
@@ -149,7 +157,8 @@ class TestUpdateProduct:
             Decimal("530.00")
         )
 
-    def test_update_product_not_found(self, test_client: TestClient, mock_service: Mock) -> None:
+    def test_update_product_not_found(self, test_client: TestClient,
+                                      mock_service: Mock) -> None:
         # Setup
         mock_service.update_product.side_effect = ValueError(
             f"Product with id<{SAMPLE_PRODUCT_ID}> does not exist."
@@ -164,5 +173,6 @@ class TestUpdateProduct:
         # Assert
         assert response.status_code == 404
         assert response.json() == {
-            "detail": {"message": f"Product with id<{SAMPLE_PRODUCT_ID}> does not exist."}
+            "detail": {"message":
+                           f"Product with id<{SAMPLE_PRODUCT_ID}> does not exist."}
         }

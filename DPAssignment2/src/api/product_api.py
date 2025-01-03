@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Generator, List, Optional, Any
+from typing import Any, Generator, List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
